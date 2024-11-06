@@ -1,70 +1,88 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, SafeAreaView, Image, TouchableOpacity, FlatList } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+// Data contoh untuk film
+const movies = [
+  { 
+    id: '1', 
+    title: 'Inception', 
+    poster: 'https://i.pinimg.com/474x/57/8b/00/578b00ad9246c4f6e552221f25d52c8c.jpg',  // Link gambar
+    description: 'Seorang pencuri yang mencuri rahasia perusahaan dengan menggunakan teknologi berbagi mimpi.' 
+  },
+  { 
+    id: '2', 
+    title: 'Interstellar', 
+    poster: 'https://upload.wikimedia.org/wikipedia/id/b/bc/Interstellar_film_poster.jpg',  // Link gambar
+    description: 'Sebuah tim penjelajah melintasi lubang cacing di luar angkasa untuk memastikan kelangsungan hidup umat manusia.' 
+  },
+  { 
+    id: '3', 
+    title: 'The Dark Knight', 
+    poster: 'https://m.media-amazon.com/images/S/pv-target-images/e9a43e647b2ca70e75a3c0af046c4dfdcd712380889779cbdc2c57d94ab63902.jpg',  // Link gambar
+    description: 'Batman harus menerima salah satu ujian psikologis dan fisik terbesar dalam kemampuannya untuk melawan ketidakadilan.' 
+  },
+];
 
-export default function HomeScreen() {
+// Komponen untuk menampilkan daftar film secara horizontal
+const MovieList = ({ onSelectMovie }) => (
+  <View style={{ flexDirection: 'row', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+    {movies.map((item) => (
+      <View key={item.id} style={{ alignItems: 'center', margin: 15 }}>
+        <TouchableOpacity onPress={() => onSelectMovie(item)}>
+          <Image 
+            source={{ uri: item.poster }} 
+            style={{ width: 150, height: 225, borderRadius: 10 }} // Ukuran gambar diperbesar
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+        <Text style={{ marginTop: 5, fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>
+          {item.title}
+        </Text>
+      </View>
+    ))}
+  </View>
+);
+
+// Komponen untuk menampilkan detail film
+const MovieDetails = ({ movie, onBack }) => (
+  <View style={{ alignItems: 'center', padding: 20 }}>
+    <Image 
+      source={{ uri: movie.poster }} 
+      style={{ width: 250, height: 375, borderRadius: 10 }} // Ukuran gambar diperbesar
+      resizeMode="contain"
+    />
+    <Text style={{ marginTop: 20, fontSize: 32, fontWeight: 'bold' }}>{movie.title}</Text> {/* Ukuran teks diperbesar */}
+    <Text style={{ marginTop: 10, textAlign: 'center', paddingHorizontal: 10, fontSize: 22 }}>
+      {movie.description}
+    </Text>
+    <TouchableOpacity onPress={onBack} style={{ marginTop: 20 }}>
+      <Text style={{ color: 'blue', fontSize: 18 }}>Kembali ke Daftar</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+const App = () => {
+  const [selectedMovie, setSelectedMovie] = useState(null);
+
+  // Fungsi untuk memilih film
+  const handleSelectMovie = (movie) => {
+    setSelectedMovie(movie); // Mengatur selectedMovie menjadi film yang dipilih
+  };
+
+  // Fungsi untuk kembali ke daftar film
+  const handleBackToList = () => {
+    setSelectedMovie(null); // Mengatur selectedMovie menjadi null dan kembali ke daftar film
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+      {selectedMovie ? (
+        <MovieDetails movie={selectedMovie} onBack={handleBackToList} />
+      ) : (
+        <MovieList onSelectMovie={handleSelectMovie} />
+      )}
+    </SafeAreaView>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+export default App;
